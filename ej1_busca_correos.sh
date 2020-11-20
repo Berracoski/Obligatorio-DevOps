@@ -32,7 +32,7 @@ do
         ;;
 
         t) #Busca solamente correos en archivos regulares y no ocultos con extencion .txt
-           archivo="*.txt"
+           archivo="[!.]*.txt"
 
         ;;
 
@@ -129,7 +129,7 @@ fi
 #los archivos no ocultos con extencion ".txt" seguido de un -type f para que busque solo archivos regulares.
 #Esta salida la redireccionamos a un archivo "temp"
 
-grep -oh "[A-Za-z0-9_.]*[A-Za-z0-9]@$dominio" $(find "$directorio" $recursivo -name "$archivo" -type f)>temp
+grep -oh "[A-Za-z0-9_.]*[A-Za-z0-9]@$dominio" $(find "$directorio" $recursivo -name "$archivo" -type f) 1>temp 2>/dev/null 
 
 #Comprobamos que el archivo temporal no este vacio, en caso de que este vacio saldremos con el mensaje adecuado
 #y salgo un codigo de 0
