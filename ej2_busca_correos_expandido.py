@@ -29,7 +29,7 @@ ordena los correos por alfabeticamente creciente por dominio y con la opcion (l)
 
 parser.add_argument("directorio",type=str,help="Directorio donde se va a hacer la busqueda.")
 
-# Se procesan los argumentos recibidos por el script en Python.
+# Se procesan los argumentos recibidos por el script en Python en la variable args.
 # Se captura la excepción SystemExit para poder salir con el código de salida que se pide en el ejercicio 2 y no con el código de salida que genere parser.parse_args().
 
 try:
@@ -40,81 +40,78 @@ except SystemExit as e:
 
 # Para ejecutar el script del ejercicio 1, se crea una lista que contendrá el comando a ser ejecutado y todos los argumentos que va a recibir.
 # El primer elemento de esta lista determina el comando a ser ejecutado, y por tanto será el camino absoluto al script en bash del ejercicio 1 
-# (esto permite independizarse del directorio corriente de trabajo).
 
 bash_script_parametros= ['/home/garto/Documents/Obligatorio-DevOps/ej1_busca_correos.sh']
 
-
-#Si el usuario a elegido que la busqueda sea recursiva, tenemos que pasarle el parametro -r al script "ej1_busca_correos.sh"
-#Con el append lo colocamos al final de la linea
+#En lo siguientes IF segun con que parametros el usuario a ejecutado el script de python se iran agregando al final de la lista bash_script_parametros.
+#Estos parametros se iran agegando con append ya que lo agraga al final de la linea de la lista bash_script_parametros.
 
 if args.recursivo:
         bash_script_parametros.append("-r")
 
-
-#Si el usuario a elegido que la busqueda de archivos sea solo .txt , tenemos que pasarle el parametro -t parametro al script "ej1_busca_correos.sh"
-#Con el append lo colocamos al final de la linea
-
 if args.texto:
         bash_script_parametros.append("-t")
 
-#Si el usuario a elegido que la busqueda de correos sea con determinado dominio , tenemos que pasarle el parametro -d parametro al script "ej1_busca_correos.sh"
-#Con el append lo colocamos al final de la linea
-
+#En el caso que el usuario agrege el parametro -d obligatoriamente tiene que agregar un dominio.
 if args.dominio:
         bash_script_parametros.append("-d")
         bash_script_parametros.append(args.dominio)
-# La opcion d la lista la cantidad de correos para cada dominio encontrado.
 
-        
-
-
-#Si el usuario a elegido que la busqueda de correos sea con determinado dominio , tenemos que pasarle el dominio que eligio al script "ej1_busca_correos.sh".
-#Con el append lo colocamos al final de la linea
-#Al script "ej1_busca_correos.sh" hay que pasarle en que directorio buscar los correos por ende hay que cargarle el parametro directorio a "ej1_busca_correos.sh".
-#Con el append lo colocamos al final de la linea
+#Obligatoriamente tiene que ejecutarse con un directorio para iniciar la busqueda ya que el ej1_busca_correos.sh es demandante con este parametro..
 
 bash_script_parametros.append(args.directorio)
 
-# Para obtener la salida estándar, la salida estándar de errores y el código de salida del script del ejercicio 1, se usa Popen, pasándole el
+# Para obtener la salida estándar, la salida estándar de errores y el código de salida del script del ejercicio 1, se usa la funcion Popen, pasándole el
 # comando con sus argumentos como una lista (cargada en la variable bash_script_parametros), donde el primer elemento es el comando y los siguientes son sus parámetros. 
-# Después de esa lista, a Popen se le pasa stdout = PIPE y stderr = PIPE para poder recuperar después la salida estándar y la salida estándar de errores.
+# Luego esa lista, a Popen se le pasa stdout = PIPE y stderr = PIPE como argumento  para poder recuperar después la salida estándar y la salida estándar de errores.
 
 process = Popen (bash_script_parametros,stdout=PIPE,stderr= PIPE)
 
-# Process permite ejecutar el comando solicitado y acceder a la información que produce.
-# Para obtener el código de retorno, la salida estándar y la salida estándar de errores del script del ejercicio 1 
-# es necesario ejecutar el método communicate de este objeto (este método causa la ejecución del ejercicio 1).
-# El método communicate retorna una la salida y la entrada estándar (stdoutdata, stderrdata).
-# La variable output será la salida estándar como primer elemento y la salida estándar de errores como segundo elemento.
+# Process es un objeto que permite ejecutar la funcion solicitada (Popen) y acceder a la información que produce.
+# Esta informacion nos permite obtener el código de retorno, la salida estándar y la salida estándar de errores del script del ejercicio 1.
+
+# Al ejecutar el método communicate de este objeto se ejecuta el comando que existe en la lista bash_script_parametros.
+# Este retorna una la salida y la entrada estándar (stdoutdata, stderrdata).
+# La variable output será la salida estándar y la salida estándar de errores.
 
 output= process.communicate()
 
+#Este if process.retunrcode retorna el codigo de retorno (exit code) del script ej1_busca_correos.sh que fue ejecutado anteriormente.
+#Si cumple la condicion de que el codigo sea distinto de 0 se despliega el mensaje que produjo el script del ejericio 1 por la salida standar de errores.
+#Se utiliza el metodo decode para formatear la salida standard de errores al ser impresa.
+# Se finaliza la ejecución del programa con el mismo código de error que el script del ejercicio 1.
+#Si este es 0 significa que no hay error.
+
 if process.returncode > 0:
- # Se despliega el mensaje producido por el script del ejercicio 1 por
- # la salida estándar de errores.
- # Se usa el método decode para formatear correctamente la salida para
- # ser impresa. Podría usarse en este caso también .decode('utf-8').
- print(output[1].decode(), file = sys.stderr, end="")
- # Se finaliza la ejecución del programa con el mismo código de error
- # que el script del ejercicio 1.
+  print(output[1].decode(), file = sys.stderr, end="")
+#Se finaliza la ejecucion del programa con el mismo codigo de error que el script 1.
  exit(process.returncode)
 
+#Verificamos que se recibio la informacion por la entrada estandar de errores.
+#Muestra el mensaje que genera el script 1 por su salida estandar de errores en caso de que no existan archivos para listar.
 if output[1].decode() != "":
  print(output[1].decode(), file=sys.stderr, end="")
  exit(0)
 
+#En esta lista_correos se cargan todos los correos que enviados por el output del ejercicio1.        
 lista_correos = output[0].decode().split("\n")
 
+#Se le borran los ultimos 2 elementos de la lista ya que no son necesarios para continuar con este script.
 lista_correos.pop(-1)
 lista_correos.pop(-1)
 
+#Una vez ya ejecutado y recibido el output del ejercicio1, si el script 2 recibe el parametro "-f"
+ #se ejecuta el siguiente IF.
+#Este realiza una transformacion de la exprecion regular ingresada y la ingresa a la variable "patron".
+#Si la exprecion regular ingresada no es correcta despliega un mensaje de error sobre la misma
+ #por la salida standar de erorres utilizando el codigo de salida 10.
 if args.regexp != None:
     try:
         patron = re.compile(args.regexp)
     except Exception as e:
         print("La expresión regular ingresada no es correcta. Ingrese una expresión regular valida.", file=sys.stderr)
         exit(10)
+  #Se crea la lista de los correos filtrados.
     correos_filtrados = []
     # Se filtran las líneas de correos con la expresión regular indicada.
     for correo in lista_correos:
@@ -123,20 +120,30 @@ if args.regexp != None:
             correos_filtrados.append(correo)
     # Luego de crear la lista de correos filtrados según la expresión regular, se cambia la lista original por la lista filtrada.
     #cat archivo_filtrado
-    lista_correos=correos_filtrados
+    lista_correos = correos_filtrados
+
+#Una vez que se tiene la nueva lista de correos con los correos filtrados (si es que se le ingresa el parametro -f)
+ #si el parametro -o fue ingresado con la opcion a (-oa) entra en el siguiente IF.
+#Este IF ordena los correos alfabeticamente separando por elementos tomando como separador el @ siendo 0 el correo
+ # y 1 el dominio.
+#La funcion lamda esta asociada al parametro key, lo que nos permite definir los valores a ser usados por el sort.
+#En este caso la funcion lambda esta tomando el parametro incial (0) que corresponde a los correos 
+ # ya que utilizamos el metodo .split separando cada string de cada posicion de la lista, tomando como separador el @ 
+ # para luego ser ordenados por el sort.
+#Luego imprime la lista de correos ordenada alfabeticamente respetando el formato de 1 correo por linea.
 
 if args.ordenar == "a":
-        lista_correos.sort(key=lambda elemento:(elemento.split("@")[0])) #Ordena los correos de la lista alfabeticamente lambda personaliza la manera en la cual se va a ordenar, en este caso se ordenara por el primer parametro antes del "@"
+        lista_correos.sort(key=lambda elemento:(elemento.split("@")[0]))
         for i in lista_correos:
                 print(i)
         print("")
-
+#Esta IF funciona exactamente que el anterior pero con la diferencia de que este ordena aflabeticamente por DOMINIO.
 elif args.ordenar == "d":
         lista_correos.sort(key=lambda elemento:(elemento.split("@")[1])) #Ordena los dominios de los correos de la lista alfabeticamente
         for i in lista_correos:
                 print(i)
         print("")
-        
+#Este IF  simplemente cuenta los elementos de la lista de manera acendiente.Key nos permite saber el argo y con len contarlo, sort los ordena de manera acendiente.
 elif args.ordenar == "l":
         lista_correos.sort(key=len) #Con key=len se ordenaran los elementos de la lista por el largo de manera acendente
         for i in lista_correos:
@@ -144,49 +151,52 @@ elif args.ordenar == "l":
         print("")
         print("Cantidad de correos electrónicos encontrados en el directorio",args.directorio,":",len(lista_correos),"\n")
         
-
+#Con los siguientes IF nos mostrara los correos electronicos encontrados segun que reporte queremos ver.Con -ed lista la cantidad de correos encontrado por cada dominio
+ #de los correos en la lista.Con -et se listan la cantidad de dominios diferentes encontrados y con -ec reporta la cantidad de corrreos encontrado por dominio
 if args.encontrados == "d":          
-        dominios_cant = {}
+        dominios_cant = {} #Definimos un directorio.
         print("Reporte cantidad de correos encontrados por dominio:")
        
-        for correo in lista_correos:
-                dominio=correo.split("@")[1]
+        for correo in lista_correos:#Para cada correo en "lista_correos" agregamos el dominio en la variable "dominio".
+                dominio=correo.split("@")[1]#
                 if dominio not in dominios_cant:
-                        dominios_cant[dominio] = 1
+                        dominios_cant[dominio] = 1 #Por cada dominio que no este en el dicionario dominio lo agrega.
                 else:
-                        dominios_cant[dominio] += 1
+                        dominios_cant[dominio] += 1#Si el dominio ya esta en la variable dominios_cant se suma 1 al dominio.
         for dominio in dominios_cant:
-                print (dominio,"-", dominios_cant[dominio])
-        
+                print (dominio,"-", dominios_cant[dominio])#Por cada dominio en el diccionario dominos_cant se imprime el dominio separado por un guion seguido 
+                                                                #de la cantidad de veces que se repitio ese dominio.
+       
 
-elif args.encontrados == "t":
-        lista_dominios = []
-        for correo in lista_correos:
+elif args.encontrados == "t": 
+        lista_dominios = []#Se declara la lista lista_dominio
+        for correo in lista_correos:#Por cada correo en lsita correo se separa el dominio y se guarda en la variable dominio.
                 dominio=correo.split("@")[1]
-                if dominio not in lista_dominios:
+                if dominio not in lista_dominios:#Si el dominio no esta  en lista_dominio  lo agrega al final de la lista 
                         lista_dominios.append(dominio)
         for i in lista_correos:
                 print(i)
-        print("Cantidad de dominios diferentes encontrados:",len(lista_dominios))
+        print("Cantidad de dominios diferentes encontrados:",len(lista_dominios))#Contabiliza los diferente tipos de dominio agregados a la lista lista_dominio.
 
 elif args.encontrados == "c":
-        dominios_cant = {}
+        dominios_cant = {}#Se declara el diccionario de cantidad de 
         print("Reporte cantidad de correos encontrados por dominio:")
         for correo in lista_correos:
-                dominio=correo.split("@")[1]
+                dominio=correo.split("@")[1]#Para cada correo en "lista_correos" agregamos el dominio en la variable "dominio".
                 if dominio not in dominios_cant:
-                        dominios_cant[dominio] = 1
+                        dominios_cant[dominio] = 1 #Por cada dominio que no este en el dicionario dominio lo agrega.
                 else:
-                        dominios_cant[dominio] += 1
+                        dominios_cant[dominio] += 1 #Si el dominio ya esta en la variable dominios_cant se suma 1 al dominio.
         for dominio in dominios_cant:
-                print (dominio,"-" ,dominios_cant[dominio])
-        lista_dominios = []
-        for correo in lista_correos:
-                dominio=correo.split("@")[1]
-                if dominio not in lista_dominios:
+                print (dominio,"-" ,dominios_cant[dominio])#Por cada dominio en el diccionario dominos_cant se imprime el dominio separado por un guion seguido 
+                                                                #de la cantidad de veces que se repitio ese dominio.
+        lista_dominios = [] #Se declara la lista lista_dominio 
+        for correo in lista_correos: #Por correo en lista_correo 
+                dominio=correo.split("@")[1]#se guarda el dominio del correo.
+                if dominio not in lista_dominios:#Si el dominio no esta en lista_dominio se agrega al final.
                         lista_dominios.append(dominio)
         print("La cantidad de dominios diferentes encontrados es: " + str(len(lista_dominios))) #Con str convertimos la lista en string para que se pueda concatenar
 
-if args.ordenar == None and args.encontrados == None and args.regexp == None:
+if args.ordenar == None and args.encontrados == None and args.regexp == None:#Si ninguno de esteos parametros es ingresado, se imprime el resultado del ejercicio1.
         for i in lista_correos:
                 print(i)
