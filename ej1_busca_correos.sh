@@ -23,6 +23,9 @@ then
    exit 4
 fi
 
+#Aquí cargamos el modulo getopts, y le damos los parametros "rtd", los primeros ":" son para obviar los errores de getopts, y los ":" luego del d
+#son para decirle que luego del "d" viene un parametro opcional parte del "-d" este queda guardado en "$OPTARG".
+
 while getopts ":rtd:" parametro
 do
     case $parametro in
@@ -74,7 +77,7 @@ then
 
 elif [ $# -eq 1 ]
 then
-   #Si S# es igual a 1 quiere decir que no se utilizo el parametro -d por lo tanto $1 es nuestro parametro directorio
+   #Si $# es igual a 1 quiere decir que no se utilizo el parametro -d por lo tanto $1 es nuestro parametro directorio
    #y lo guardamos en la variable directorio
    directorio=$1
 fi
@@ -114,26 +117,35 @@ echo No se tienen los permisos necesarios para acceder al directorio y buscar co
 exit 3
 fi
 
+
 #Procedemos a realizar la busqueda mediante un grep con las opciones "-o" para que busque solo las coincidencias y no toda la linea
-#además un "-h" para que no me ponga como prefijo el archivo donde encontro la expreción.
+# un "-h" para que no me ponga como prefijo el archivo donde encontro la expreción y un "-I" para que ignore los archivos binarios. 
 #Nuestra expreción cuenta de 3 partes una que es cualquier combinacion de letras mayusculas o minusculas,
-#números puntos o guiones bajos "[A-Za-z0-9_.]*", 
-#seguido de un @ que no puede estar precedido de un punto o guion bajo "[A-Za-z0-9]@",
-#y una tercer parte que sera la variable "$dominio" que esta precargada que no puede iniciar con punto o guion bajo
-#pero luego puede seguir con cualquier combinacion de letras números puntos o guiones bajos "[^._][A-Za-z0-9_.]*"
-#a no ser que se haya puesto el parametro "-d" en tal caso tendra cargado el parametro que hayamos puesto luego del "-d"
+#números puntos o guiones bajos "[A-Za-z0-9_.]*[A-Za-z0-9]", seguido de un @ y una tercer parte que sera la variable "$dominio"
+#que esta precargada al inicio del script o pudo ser modificado en caso de haber puesto un "-d"
 #Este grep buscara dichas expresiones en los archivos resultantes de la ejecucion del comando find en la variable "$directorio" la cual
 #tiene cargado el camino absoluto al directorio que pasamos como parametro, luego vendra la variable "$recursivo" que tiene guardado "-maxdepth 1"
 #y en caso de haber pasado -r estará vacia de manera que el find sea recursivo, luego viene el -name seguido de la variable "$archivo" la cual está
 #precargada con ".*" para buscar en todos los archivos ya sea ocultos o no o en caso de haber pasado -t tendra cargado "*.txt" de manera de buscar solo
 #los archivos no ocultos con extencion ".txt" seguido de un -type f para que busque solo archivos regulares.
-#Esta salida la redireccionamos a un archivo "temp"
+#La salida estandar la redireccionamos a un archivo "temp" y descartamos la salida de errores
 
-grep -oh "[A-Za-z0-9_.]*[A-Za-z0-9]@$dominio" $(find "$directorio" $recursivo -name "$archivo" -type f) 1>temp 2>/dev/null 
+#Antes de realizar el grep vamos asegurarnos que el find es capaz de encontrar archivos, de caso de no encontrar archivos saldremos sin errores
+#diciendo que no se encontraron correos.
+
+if [ $(find "$directorio" $recursivo -name "$archivo" -type f | wc -l) -eq 0 ]
+then
+	echo "No se han encontrado correos en el directorio $directorio"
+	exit 0
+fi
+
+#Si no se cumple la condicion del "if" quiere decir que se encontraron archivos y procedemos a hacer el grep en esos archivos
+
+grep -ohI "[A-Za-z0-9_.]*[A-Za-z0-9]@$dominio" $(find "$directorio" $recursivo -name "$archivo" -type f) 1>/tmp/ej1_busca_correos 2>/dev/null
 
 #Comprobamos que el archivo temporal no este vacio, en caso de que este vacio saldremos con el mensaje adecuado
 #y salgo un codigo de 0
-if [ $(wc -l < temp) -eq 0 ]
+if [ $(wc -l < /tmp/ej1_busca_correos) -eq 0 ]
 then
    echo "No se han encontrado correos en el directorio $directorio"
    rm temp #Borramos el archivo temporal que creamos
@@ -141,15 +153,15 @@ then
 fi
 
 #Realizamos un cat de el archivo "temp" para que liste los correos que hemos encontrado
-cat temp
+cat /tmp/ej1_busca_correos
 
 #Imprimimos en pantalla mediante un echo La cantidad de correos encontrados en "$directorio"(camino absoluto pasado como parametro) es:
 #Ejecutamos un wc -l pasandole a su entrada estandar el archivo "temp" de manera de obtener solo el numero y el archivo que pasamos para contar
 #esto se podria sustituir por un "cat temp | wc -l"
-echo "La cantidad de correos en "$directorio" es: "$(wc -l < temp)
+echo "La cantidad de correos en "$directorio" es: "$(wc -l < /tmp/ej1_busca_correos)
 
 #Procedemos a borrar el archivo temporal que creamos previamente
-rm temp
+rm /tmp/ej1_busca_correos
 
 #Salimos con codigo 0 sin errores
 exit 0
