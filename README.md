@@ -3,6 +3,7 @@ El objetivo básico de este obligatorio es hacer un script que liste los correos
 
 ## Bash
 
+Realizar un scripten bash (shell script)que sea de la forma:ej1\_busca\_correos  [-r]  [-t] [-d dominio]  DirectorioEl script deberá listar todos loscorreos electrónicos (un correo por línea) encontrados en los archivos regulares del directorio pasado como parámetro, sin importar si son o no ocultos. Después del listado de  correos  electrónicos  encontrados,  el  script  deberá  desplegar  la  cantidad  de  correos  listados.
 
 ## Python
 
