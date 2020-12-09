@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 #ej1_busca_correos  [-r]  [-t] [-d dominio]  Directorio
 
@@ -119,7 +119,7 @@ fi
 
 
 #Procedemos a realizar la busqueda mediante un grep con las opciones "-o" para que busque solo las coincidencias y no toda la linea
-# un "-h" para que no me ponga como prefijo el archivo donde encontro la expreción y un "-I" para que ignore los archivos binarios. 
+#un "-h" para que no me ponga como prefijo el archivo donde encontro la expreción y un "-I" para que ignore los archivos binarios. 
 #Nuestra expreción cuenta de 3 partes una que es cualquier combinacion de letras mayusculas o minusculas,
 #números puntos o guiones bajos "[A-Za-z0-9_.]*[A-Za-z0-9]", seguido de un @ y una tercer parte que sera la variable "$dominio"
 #que esta precargada al inicio del script o pudo ser modificado en caso de haber puesto un "-d"
@@ -128,40 +128,40 @@ fi
 #y en caso de haber pasado -r estará vacia de manera que el find sea recursivo, luego viene el -name seguido de la variable "$archivo" la cual está
 #precargada con ".*" para buscar en todos los archivos ya sea ocultos o no o en caso de haber pasado -t tendra cargado "*.txt" de manera de buscar solo
 #los archivos no ocultos con extencion ".txt" seguido de un -type f para que busque solo archivos regulares.
-#La salida estandar la redireccionamos a un archivo "temp" y descartamos la salida de errores
+#La salida estandar la redireccionamos a un archivo temporal en "/tmp/ej1_busca_correos$$" y descartamos la salida de errores
 
 #Antes de realizar el grep vamos asegurarnos que el find es capaz de encontrar archivos, de caso de no encontrar archivos saldremos sin errores
 #diciendo que no se encontraron correos.
 
 if [ $(find "$directorio" $recursivo -name "$archivo" -type f | wc -l) -eq 0 ]
 then
-	echo "No se han encontrado correos en el directorio $directorio"
-	exit 0
+	echo "No se han encontrado correos en el archivos regulares en: $directorio" >&2
+	exit 6
 fi
 
 #Si no se cumple la condicion del "if" quiere decir que se encontraron archivos y procedemos a hacer el grep en esos archivos
 
-grep -ohI "[A-Za-z0-9_.]*[A-Za-z0-9]@$dominio" $(find "$directorio" $recursivo -name "$archivo" -type f) 1>/tmp/ej1_busca_correos 2>/dev/null
+grep -ohI "[A-Za-z0-9_.]*[A-Za-z0-9]@$dominio" $(find "$directorio" $recursivo -name "$archivo" -type f) 1>/tmp/ej1_busca_correos$$ 2>/dev/null
 
 #Comprobamos que el archivo temporal no este vacio, en caso de que este vacio saldremos con el mensaje adecuado
 #y salgo un codigo de 0
-if [ $(wc -l < /tmp/ej1_busca_correos) -eq 0 ]
+if [ $(wc -l < /tmp/ej1_busca_correos$$) -eq 0 ]
 then
    echo "No se han encontrado correos en el directorio $directorio"
-   rm temp #Borramos el archivo temporal que creamos
+   rm /tmp/ej1_busca_correos$$ #Borramos el archivo temporal que creamos
    exit 0
 fi
 
 #Realizamos un cat de el archivo "temp" para que liste los correos que hemos encontrado
-cat /tmp/ej1_busca_correos
+cat /tmp/ej1_busca_correos$$
 
 #Imprimimos en pantalla mediante un echo La cantidad de correos encontrados en "$directorio"(camino absoluto pasado como parametro) es:
 #Ejecutamos un wc -l pasandole a su entrada estandar el archivo "temp" de manera de obtener solo el numero y el archivo que pasamos para contar
 #esto se podria sustituir por un "cat temp | wc -l"
-echo "La cantidad de correos en "$directorio" es: "$(wc -l < /tmp/ej1_busca_correos)
+echo "La cantidad de correos en "$directorio" es: "$(wc -l < /tmp/ej1_busca_correos$$)
 
 #Procedemos a borrar el archivo temporal que creamos previamente
-rm /tmp/ej1_busca_correos
+rm /tmp/ej1_busca_correos$$
 
 #Salimos con codigo 0 sin errores
 exit 0

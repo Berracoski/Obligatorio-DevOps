@@ -1,4 +1,4 @@
-#/usr/bin/python3
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
 #ej2_busca_correos_expandido.py [-r] [-t] [-d dom] [-e {d,t,c}] [-f RegExp] [-o {a,d,l}] Dir
@@ -41,7 +41,7 @@ except SystemExit as e:
 # Para ejecutar el script del ejercicio 1, se crea una lista que contendrá el comando a ser ejecutado y todos los argumentos que va a recibir.
 # El primer elemento de esta lista determina el comando a ser ejecutado, y por tanto será el camino absoluto al script en bash del ejercicio 1 
 
-bash_script_parametros= ['/home/garto/Documents/Obligatorio-DevOps/ej1_busca_correos.sh']
+bash_script_parametros= ['/home/user/Obligatorio-DevOps/ej1_busca_correos.sh']
 
 #En lo siguientes IF segun con que parametros el usuario a ejecutado el script de python se iran agregando al final de la lista bash_script_parametros.
 #Estos parametros se iran agegando con append ya que lo agraga al final de la linea de la lista bash_script_parametros.
@@ -77,15 +77,15 @@ process = Popen (bash_script_parametros,stdout=PIPE,stderr= PIPE)
 output= process.communicate()
 
 #Este if process.retunrcode retorna el codigo de retorno (exit code) del script ej1_busca_correos.sh que fue ejecutado anteriormente.
-#Si cumple la condicion de que el codigo sea distinto de 0 se despliega el mensaje que produjo el script del ejericio 1 por la salida standar de errores.
+#Si cumple la condicion de que el codigo sea distinto de 0 se despliega el mensaje que produjo el script del ejericio 1 por la salida estandar de errores.
 #Se utiliza el metodo decode para formatear la salida standard de errores al ser impresa.
-# Se finaliza la ejecución del programa con el mismo código de error que el script del ejercicio 1.
+#Se finaliza la ejecución del programa con el mismo código de error que el script del ejercicio 1.
 #Si este es 0 significa que no hay error.
 
 if process.returncode > 0:
   print(output[1].decode(), file = sys.stderr, end="")
 #Se finaliza la ejecucion del programa con el mismo codigo de error que el script 1.
- exit(process.returncode)
+  exit(process.returncode)
 
 #Verificamos que se recibio la informacion por la entrada estandar de errores.
 #Muestra el mensaje que genera el script 1 por su salida estandar de errores en caso de que no existan archivos para listar.
@@ -93,8 +93,13 @@ if output[1].decode() != "":
  print(output[1].decode(), file=sys.stderr, end="")
  exit(0)
 
-#En esta lista_correos se cargan todos los correos que enviados por el output del ejercicio1.        
+#En esta lista_correos se cargan todos los correos enviados por el output del ejercicio1.        
 lista_correos = output[0].decode().split("\n")
+
+#Si ninguno de esteos parametros es ingresado, se imprime el resultado del ejercicio1.
+if args.ordenar == None and args.encontrados == None and args.regexp == None:
+        for i in lista_correos:
+                print(i)
 
 #Se le borran los ultimos 2 elementos de la lista ya que no son necesarios para continuar con este script.
 lista_correos.pop(-1)
@@ -111,7 +116,7 @@ if args.regexp != None:
     except Exception as e:
         print("La expresión regular ingresada no es correcta. Ingrese una expresión regular valida.", file=sys.stderr)
         exit(10)
-  #Se crea la lista de los correos filtrados.
+    #Se crea la lista de los correos filtrados.
     correos_filtrados = []
     # Se filtran las líneas de correos con la expresión regular indicada.
     for correo in lista_correos:
@@ -137,13 +142,15 @@ if args.ordenar == "a":
         for i in lista_correos:
                 print(i)
         print("")
-#Esta IF funciona exactamente que el anterior pero con la diferencia de que este ordena aflabeticamente por DOMINIO.
+        print("Cantidad de correos electrónicos encontrados en el directorio",args.directorio,":",len(lista_correos),"\n")
+#Este if funciona exactamente igual que el anterior pero con la diferencia de que este ordena aflabeticamente por DOMINIO.
 elif args.ordenar == "d":
         lista_correos.sort(key=lambda elemento:(elemento.split("@")[1])) #Ordena los dominios de los correos de la lista alfabeticamente
         for i in lista_correos:
                 print(i)
         print("")
-#Este IF  simplemente cuenta los elementos de la lista de manera acendiente.Key nos permite saber el argo y con len contarlo, sort los ordena de manera acendiente.
+        print("Cantidad de correos electrónicos encontrados en el directorio",args.directorio,":",len(lista_correos),"\n")
+#Este if  simplemente cuenta los elementos de la lista de manera acendente.Key nos permite saber el largo y con "len" contarlo, sort los ordena de manera acendente.
 elif args.ordenar == "l":
         lista_correos.sort(key=len) #Con key=len se ordenaran los elementos de la lista por el largo de manera acendente
         for i in lista_correos:
@@ -151,16 +158,21 @@ elif args.ordenar == "l":
         print("")
         print("Cantidad de correos electrónicos encontrados en el directorio",args.directorio,":",len(lista_correos),"\n")
         
-#Con los siguientes IF nos mostrara los correos electronicos encontrados segun que reporte queremos ver.Con -ed lista la cantidad de correos encontrado por cada dominio
- #de los correos en la lista.Con -et se listan la cantidad de dominios diferentes encontrados y con -ec reporta la cantidad de corrreos encontrado por dominio
-if args.encontrados == "d":          
-        dominios_cant = {} #Definimos un directorio.
-        print("Reporte cantidad de correos encontrados por dominio:")
+#Con los siguientes IF nos mostrara los correos electronicos encontrados segun que reporte queremos ver. Con -ed lista la cantidad de correos encontrado por cada dominio
+#de los correos en la lista. Con -et se listan la cantidad de dominios diferentes encontrados y con -ec reporta la cantidad de corrreos encontrado por dominio
+if args.encontrados == "d":
+        if args.ordenar == None:
+                for i in lista_correos:
+                        print(i)
+                print("")
+                print("Cantidad de correos electrónicos encontrados en el directorio",args.directorio,":",len(lista_correos),"\n")         
+        dominios_cant = {} #Definimos un diccionario.
+        print("Reporte cantidad de correos encontrados por dominio:","\n")
        
         for correo in lista_correos:#Para cada correo en "lista_correos" agregamos el dominio en la variable "dominio".
                 dominio=correo.split("@")[1]#
                 if dominio not in dominios_cant:
-                        dominios_cant[dominio] = 1 #Por cada dominio que no este en el dicionario dominio lo agrega.
+                        dominios_cant[dominio] = 1 #Por cada dominio que no este en el diccionario dominio lo agrega.
                 else:
                         dominios_cant[dominio] += 1#Si el dominio ya esta en la variable dominios_cant se suma 1 al dominio.
         for dominio in dominios_cant:
@@ -168,19 +180,29 @@ if args.encontrados == "d":
                                                                 #de la cantidad de veces que se repitio ese dominio.
        
 
-elif args.encontrados == "t": 
+elif args.encontrados == "t":
+        if args.ordenar == None: #Estos if solo correran si no se pidio ordenar la lista antes, de manera de imprimir la lista como en ejercicio1
+                for i in lista_correos:
+                        print(i)
+                print("")
+                print("Cantidad de correos electrónicos encontrados en el directorio",args.directorio,":",len(lista_correos),"\n")
+
         lista_dominios = []#Se declara la lista lista_dominio
         for correo in lista_correos:#Por cada correo en lsita correo se separa el dominio y se guarda en la variable dominio.
                 dominio=correo.split("@")[1]
                 if dominio not in lista_dominios:#Si el dominio no esta  en lista_dominio  lo agrega al final de la lista 
                         lista_dominios.append(dominio)
-        for i in lista_correos:
-                print(i)
+        
         print("Cantidad de dominios diferentes encontrados:",len(lista_dominios))#Contabiliza los diferente tipos de dominio agregados a la lista lista_dominio.
 
 elif args.encontrados == "c":
+        if args.ordenar == None:
+                for i in lista_correos:
+                        print(i)
+                print("")
+                print("Cantidad de correos electrónicos encontrados en el directorio",args.directorio,":",len(lista_correos),"\n")
         dominios_cant = {}#Se declara el diccionario de cantidad de 
-        print("Reporte cantidad de correos encontrados por dominio:")
+        print("Reporte cantidad de correos encontrados por dominio:","\n")
         for correo in lista_correos:
                 dominio=correo.split("@")[1]#Para cada correo en "lista_correos" agregamos el dominio en la variable "dominio".
                 if dominio not in dominios_cant:
@@ -195,8 +217,7 @@ elif args.encontrados == "c":
                 dominio=correo.split("@")[1]#se guarda el dominio del correo.
                 if dominio not in lista_dominios:#Si el dominio no esta en lista_dominio se agrega al final.
                         lista_dominios.append(dominio)
+        print("")               
         print("La cantidad de dominios diferentes encontrados es: " + str(len(lista_dominios))) #Con str convertimos la lista en string para que se pueda concatenar
 
-if args.ordenar == None and args.encontrados == None and args.regexp == None:#Si ninguno de esteos parametros es ingresado, se imprime el resultado del ejercicio1.
-        for i in lista_correos:
-                print(i)
+exit(0) #Salimos del programa sin errores.
