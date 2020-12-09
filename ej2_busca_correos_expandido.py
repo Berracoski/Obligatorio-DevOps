@@ -96,11 +96,6 @@ if output[1].decode() != "":
 #En esta lista_correos se cargan todos los correos enviados por el output del ejercicio1.        
 lista_correos = output[0].decode().split("\n")
 
-#Si ninguno de esteos parametros es ingresado, se imprime el resultado del ejercicio1.
-if args.ordenar == None and args.encontrados == None and args.regexp == None:
-        for i in lista_correos:
-                print(i)
-
 #Se le borran los ultimos 2 elementos de la lista ya que no son necesarios para continuar con este script.
 lista_correos.pop(-1)
 lista_correos.pop(-1)
@@ -126,6 +121,13 @@ if args.regexp != None:
     # Luego de crear la lista de correos filtrados según la expresión regular, se cambia la lista original por la lista filtrada.
     #cat archivo_filtrado
     lista_correos = correos_filtrados
+
+#Si ninguno de esteos parametros es ingresado, se imprime el resultado del ejercicio1.
+if args.ordenar == None and args.encontrados == None:
+        for i in lista_correos:
+                print(i)
+        print("")
+        print("Cantidad de correos electrónicos encontrados en el directorio",args.directorio,":",len(lista_correos),"\n")
 
 #Una vez que se tiene la nueva lista de correos con los correos filtrados (si es que se le ingresa el parametro -f)
  #si el parametro -o fue ingresado con la opcion a (-oa) entra en el siguiente IF.
