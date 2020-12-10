@@ -34,7 +34,8 @@ De esta manera, tanto antes y como después del “@” tiene que haber obligato
 El ultimo dígito de esta tercera secuencia tiene que ser una letra (mayúscula o minúscula) o un dígito, no pudiendo ser “_” ni “.” ni ninguna otra cosa (no será tomado en cuenta como parte del correo un carácter así al final).
 Como restricción adicional, después del @ tendrán que haber al menos dos caracteres que sean letras (mayúsculas o minúsculas) o dígitos (no pueden ser ni “_” ni “.”).
 Debe considerarse como correo la secuencia más grande que contiene este patrón y no secuencias menores, así como distinguirse correctamente direcciones de correo, aunque terminen, comiencen o estén entre medio de cada línea.
-También deberán distinguirse correctamente las direcciones de correo, aunque se tengan varias en una misma línea. Por ejemplo, la línea siguiente:
+También deberán distinguirse correctamente las direcciones de correo, aunque se tengan varias en una misma línea.
+Por ejemplo, la línea siguiente:
 El correo de pepe es el_pepe@adinet.com.uy y el de Juanita es juanita.mengano_32@ggmail.com.xx 
 Debe producir los correos:
 el_pepe@adinet.com.uy
