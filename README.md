@@ -1,9 +1,14 @@
 # Obligatorio-DevOps
+---
 El objetivo básico de este obligatorio es hacer un script que liste los correos electrónicos contenidos en los archivos regulares de un directorio pasado como parámetro (con opciones para buscar los archivos, que contienen los correos, en forma recursivaa partir de él, y poder buscar solamente en los archivos regulares no ocultos de la forma \*.txt y de un dominio especifico), y hacer un script en Python que lo utilice apropiadamente para agregarle más funcionalidades y flexibilidad  en la interpretación de sus parámetros(agregando funcionalidadesde cuenta de correos encontrados por dominio, cantidad total de dominios encontrados, filtrado con una expresión regular, ordenamiento del listado según distintas opciones).El obligatorio consiste en la creación de un script en bash y un script en Python.
 
 ## Bash
-
-Realizar un script en bash (shell script)que sea de la forma:ej1\_busca\_correos [-r] [-t] [-d dominio] Directorio El script deberá listar todos los correos electrónicos (un correo por línea) encontrados en los archivos regulares del directorio pasado como parámetro, sin importar si son o no ocultos. Después del listado de correos electrónicos encontrados, el script deberá desplegar la cantidad de correos listados.
+---
+Realizar un script en bash (shell script)que sea de la forma:
+``` 
+ej1\_busca\_correos [-r] [-t] [-d dominio] Directorio
+``` 
+El script deberá listar todos los correos electrónicos (un correo por línea) encontrados en los archivos regulares del directorio pasado como parámetro, sin importar si son o no ocultos. Después del listado de correos electrónicos encontrados, el script deberá desplegar la cantidad de correos listados.
 En caso de recibirse el modificador -r, se listarán los correos electrónicos de todos los archivos contenidos a partir del directorio pasado como parámetro buscándolos en forma recursiva (la búsqueda de archivos, para obtener los correos que tengan dentro, será recursiva en la estructura de directorios partiendo del parámetro Directorio).
 Si el script no recibe el modificador -r, solo se tomarán en cuenta los archivos del directorio pasado como parámetro y no los de los subdirectorios (no será recursivo). Así, la búsqueda en estos archivos será recursiva o no según se reciba o no el modificador -r.
 En caso de recibirse el modificador -t, el script deberá buscar direcciones de correo electrónico solamente en los archivos regulares no ocultos con extensión .txt. 
@@ -39,12 +44,12 @@ Al final de la lista de correos deberá desplegarse la cantidad de correos encon
 
 
 ## Python
-
+---
 El objetivo del ejercicio 2es hacer un script de Python que despliegue información producida en base a la salida del script creado en el ejercicio 1, agregándole funcionalidadesy siendo más flexible en la interpretación de los modificadores (no requiriendo un orden específico para poder reconocerlos).
 El ejercicio 2 consiste en realizar un script en Python que sea de la forma:
-
+``` 
 ej2_busca_correos_expandido.py[-r] [-t] [-d dom] [-e {d,t,c}] [-f RegExp][-o {a,d,l}] Dir
-
+``` 
 El script de Python recibirá las indicaciones según lo ingresado por el usuario en la línea de comandos (modificadores, opciones, dominio, expresión regular y directorio) y desplegará los correos electrónicos encontrados, que se encuentran en los archivos del directorio pasado como parámetro, siguiendolas especificaciones de los modificadores y opciones ingresadas por el usuario.
 El script Python deberá aceptarlos modificadores en cualquier orden, pudiendo estar o no presentes.
 Tres de los modificadores del script de Python son iguales a los del ejercicio 1.
